@@ -1,0 +1,43 @@
+﻿@using ShopManager.Models
+@model List<Customer>
+
+@{
+    ViewData["Title"] = "Customers List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.Id</td>
+                <td>@customer.Name</td>
+                <td>@customer.Email</td>
+                <td>@customer.Phone</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<form asp-controller="Customer" asp-action="SearchByName" method="get">
+    <label>Name: </label>
+    <input type="text" name="name" />
+    <button type="submit">Search</button>
+</form>
+
+<hr />
+
+<a asp-controller="Customer" asp-action="AddCustomer">Add New Customer</a> |
+<a asp-controller="Customer" asp-action="Index">Back to List</a>

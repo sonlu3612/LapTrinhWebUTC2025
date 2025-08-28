@@ -1,0 +1,17 @@
+﻿@using ShopManager.Models
+@model Product
+
+@{
+    ViewData["Title"] = "Products Description";
+}
+
+<h2>Products Description</h2>
+
+<div>
+    <h3>@Model.Name</h3>
+    <p><strong>Id:</strong> @Model.Id</p>
+    <p><strong>Price:</strong> @Model.Price.ToString("N0") VND</p>
+    <p><strong>Description:</strong> @Model.Description</p>
+</div>
+
+<a asp-action="ListProduct" class="btn btn-primary">Back to list</a>

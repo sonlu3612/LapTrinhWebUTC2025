@@ -1,0 +1,26 @@
+﻿@using ShopManager.Models
+@model Customer
+
+@{
+    ViewData["Title"] = "Them khach hang";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="AddCustomer" method="post">
+    <div>
+        <label>Name:</label>
+        <input asp-for="Name" />
+    </div>
+    <div>
+        <label>Email:</label>
+        <input asp-for="Email" />
+    </div>
+    <div>
+        <label>Phone Number:</label>
+        <input asp-for="Phone" />
+    </div>
+    <button type="submit">Save</button>
+</form>
+
+<a asp-action="Index">Back to list</a>
