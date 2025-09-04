@@ -1,0 +1,14 @@
+﻿@model IEnumerable<DemoLab.Models.Phone>
+
+<div class="content-header">Sản phẩm mới nhất</div>
+<div class="product-grid">
+    @foreach (var phone in Model)
+    {
+        <div class="product-card">
+            <div class="product-image">
+                <img src="@phone.Image" alt="@phone.Name" />
+            </div>
+            <div class="product-title">@phone.Name</div>
+        </div>
+    }
+</div>

@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - DEMO LAB</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a class="navbar-brand" href="#">DEMO LAB</a>
+            <a asp-controller="Home" asp-action="Index" class="nav-item active">Trang chủ</a>
+            <a href="#" class="nav-item">Giới thiệu</a>
+            <a href="#" class="nav-item">Liên hệ</a>
+            <a href="#" class="nav-item">Sản phẩm</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            @await Html.PartialAsync("Menu")
+        </aside>
+
+        <main class="main-content">
+            @RenderBody() 
+            <h3 class="content-header">Sản phẩm nổi bật</h3>
+            @await Component.InvokeAsync("Phone")
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>GIỚI THIỆU</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+            </div>
+            <div class="footer-section">
+                <h3>LIÊN HỆ</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
