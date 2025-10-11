@@ -10,32 +10,23 @@ using NetCoreLAB6_EF.Models;
 
 namespace NetCoreLAB6_EF.Controllers
 {
-    public class CategoriesController : Controller
+    public class MarksController : Controller
     {
         private readonly AppDbContext _context;
 
-        public CategoriesController(AppDbContext context)
+        public MarksController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: Categories
-        // GET: Categories
+        // GET: Marks
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categories.ToListAsync();
-            Console.WriteLine($"Index - Loading {categories.Count} categories");
-
-            // In ra console để debug
-            foreach (var cat in categories)
-            {
-                Console.WriteLine($"Category: {cat.Id} - {cat.Name} - {cat.Status} - {cat.CreateDate}");
-            }
-
-            return View(categories);
+            var appDbContext = _context.Marks.Include(m => m.Student).Include(m => m.Subject);
+            return View(await appDbContext.ToListAsync());
         }
 
-        // GET: Categories/Details/5
+        // GET: Marks/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,40 +34,45 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            var mark = await _context.Marks
+                .Include(m => m.Student)
+                .Include(m => m.Subject)
+                .FirstOrDefaultAsync(m => m.SubjectId == id);
+            if (mark == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(mark);
         }
 
-        // GET: Categories/Create
+        // GET: Marks/Create
         public IActionResult Create()
         {
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "StudentAddress");
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "SubjectName");
             return View();
         }
 
-        // POST: Categories/Create
+        // POST: Marks/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Status,CreateDate")] Category category)
+        public async Task<IActionResult> Create([Bind("SubjectId,StudentId,Score")] Mark mark)
         {
             if (ModelState.IsValid)
             {
-                category.CreateDate = DateTime.Now;
-                _context.Add(category);
+                _context.Add(mark);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            return View(category);
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "StudentAddress", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "SubjectName", mark.SubjectId);
+            return View(mark);
         }
-        // GET: Categories/Edit/5
+
+        // GET: Marks/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,22 +80,24 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var mark = await _context.Marks.FindAsync(id);
+            if (mark == null)
             {
                 return NotFound();
             }
-            return View(category);
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "StudentAddress", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "SubjectName", mark.SubjectId);
+            return View(mark);
         }
 
-        // POST: Categories/Edit/5
+        // POST: Marks/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Status,CreateDate")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("SubjectId,StudentId,Score")] Mark mark)
         {
-            if (id != category.Id)
+            if (id != mark.SubjectId)
             {
                 return NotFound();
             }
@@ -108,13 +106,12 @@ namespace NetCoreLAB6_EF.Controllers
             {
                 try
                 {
-                    category.CreateDate = DateTime.Now;
-                    _context.Update(category);
+                    _context.Update(mark);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.Id))
+                    if (!MarkExists(mark.SubjectId))
                     {
                         return NotFound();
                     }
@@ -125,10 +122,12 @@ namespace NetCoreLAB6_EF.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            ViewData["StudentId"] = new SelectList(_context.Students, "Id", "StudentAddress", mark.StudentId);
+            ViewData["SubjectId"] = new SelectList(_context.Subjects, "Id", "SubjectName", mark.SubjectId);
+            return View(mark);
         }
 
-        // GET: Categories/Delete/5
+        // GET: Marks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,34 +135,36 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            var mark = await _context.Marks
+                .Include(m => m.Student)
+                .Include(m => m.Subject)
+                .FirstOrDefaultAsync(m => m.SubjectId == id);
+            if (mark == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(mark);
         }
 
-        // POST: Categories/Delete/5
+        // POST: Marks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            var mark = await _context.Marks.FindAsync(id);
+            if (mark != null)
             {
-                _context.Categories.Remove(category);
+                _context.Marks.Remove(mark);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool MarkExists(int id)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            return _context.Marks.Any(e => e.SubjectId == id);
         }
     }
 }

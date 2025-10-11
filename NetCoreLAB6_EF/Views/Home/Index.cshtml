@@ -1,8 +1,50 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<NetCoreLAB6_EF.Models.Banner>
+
+@{
+    ViewData["Title"] = "Trang Chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="banner-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; margin: 0; padding: 0; box-sizing: border-box;">
+    <div style="height: 60px;"></div> 
+    <div style="position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); overflow: hidden; margin: 0; padding: 0;">
+        @foreach (var item in Model)
+        {
+            if (!string.IsNullOrEmpty(item.Image))
+            {
+                <div class="banner-item" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none;">
+                    <img src="~/Banner/@item.Image" alt="@item.Name" style="width: 100%; height: 100%; object-fit: cover; margin: 0; padding: 0;" />
+                </div>
+            }
+        }
+    </div>
 </div>
+
+<style>
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const banners = document.querySelectorAll('.banner-item');
+        if (banners.length > 0) {
+            banners[0].style.display = 'block'; 
+            let currentBanner = 0;
+
+            setTimeout(() => {
+                setInterval(() => {
+                    banners[currentBanner].style.display = 'none';
+                    currentBanner = (currentBanner + 1) % banners.length;
+                    banners[currentBanner].style.display = 'block';
+                }, 5000);
+            }, 1000);
+        }
+    });
+</script>

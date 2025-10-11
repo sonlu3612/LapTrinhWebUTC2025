@@ -10,32 +10,22 @@ using NetCoreLAB6_EF.Models;
 
 namespace NetCoreLAB6_EF.Controllers
 {
-    public class CategoriesController : Controller
+    public class StdClassesController : Controller
     {
         private readonly AppDbContext _context;
 
-        public CategoriesController(AppDbContext context)
+        public StdClassesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: Categories
-        // GET: Categories
+        // GET: StdClasses
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categories.ToListAsync();
-            Console.WriteLine($"Index - Loading {categories.Count} categories");
-
-            // In ra console để debug
-            foreach (var cat in categories)
-            {
-                Console.WriteLine($"Category: {cat.Id} - {cat.Name} - {cat.Status} - {cat.CreateDate}");
-            }
-
-            return View(categories);
+            return View(await _context.StdClasses.ToListAsync());
         }
 
-        // GET: Categories/Details/5
+        // GET: StdClasses/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -43,40 +33,39 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            var stdClass = await _context.StdClasses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            if (stdClass == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(stdClass);
         }
 
-        // GET: Categories/Create
+        // GET: StdClasses/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Categories/Create
+        // POST: StdClasses/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Status,CreateDate")] Category category)
+        public async Task<IActionResult> Create([Bind("Id,ClassName")] StdClass stdClass)
         {
             if (ModelState.IsValid)
             {
-                category.CreateDate = DateTime.Now;
-                _context.Add(category);
+                _context.Add(stdClass);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            return View(category);
+            return View(stdClass);
         }
-        // GET: Categories/Edit/5
+
+        // GET: StdClasses/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,22 +73,22 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var stdClass = await _context.StdClasses.FindAsync(id);
+            if (stdClass == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(stdClass);
         }
 
-        // POST: Categories/Edit/5
+        // POST: StdClasses/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Status,CreateDate")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ClassName")] StdClass stdClass)
         {
-            if (id != category.Id)
+            if (id != stdClass.Id)
             {
                 return NotFound();
             }
@@ -108,13 +97,12 @@ namespace NetCoreLAB6_EF.Controllers
             {
                 try
                 {
-                    category.CreateDate = DateTime.Now;
-                    _context.Update(category);
+                    _context.Update(stdClass);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.Id))
+                    if (!StdClassExists(stdClass.Id))
                     {
                         return NotFound();
                     }
@@ -125,10 +113,10 @@ namespace NetCoreLAB6_EF.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(stdClass);
         }
 
-        // GET: Categories/Delete/5
+        // GET: StdClasses/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,34 +124,34 @@ namespace NetCoreLAB6_EF.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            var stdClass = await _context.StdClasses
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            if (stdClass == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(stdClass);
         }
 
-        // POST: Categories/Delete/5
+        // POST: StdClasses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+            var stdClass = await _context.StdClasses.FindAsync(id);
+            if (stdClass != null)
             {
-                _context.Categories.Remove(category);
+                _context.StdClasses.Remove(stdClass);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool StdClassExists(int id)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            return _context.StdClasses.Any(e => e.Id == id);
         }
     }
 }
