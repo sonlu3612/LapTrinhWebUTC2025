@@ -1,0 +1,13 @@
+﻿@model IEnumerable<DayLabTh2.Models.MenuItem>
+
+<div class="sb-sidenav-menu">
+    <div class="nav">
+        @foreach (var item in Model)
+        {
+            <a class="nav-link" href="@item.Link">
+                <div class="sb-nav-link-icon"><i class="@item.Icon"></i></div>
+                @item.Name
+            </a>
+        }
+    </div>
+</div>
