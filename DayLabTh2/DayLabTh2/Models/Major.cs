@@ -8,7 +8,7 @@
         }
 
         public int MajorID { get; set; }
-        public string MajorName { get; set; }
-        public virtual ICollection<Learner> Learners { get; set; }
+        public string? MajorName { get; set; }
+        public virtual ICollection<Learner>? Learners { get; set; }
     }
 }
