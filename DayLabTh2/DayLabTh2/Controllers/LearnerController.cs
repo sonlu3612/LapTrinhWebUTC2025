@@ -9,31 +9,67 @@ namespace DayLabTh2.Controllers
     public class LearnerController : Controller
     {
         private SchoolContext db;
+        private int pageSize = 3; // Biến toàn cục cho kích thước trang
 
         public LearnerController(SchoolContext context)
         {
             db = context;
         }
 
+        // Action Index với phân trang cơ bản
         public IActionResult Index(int? mid)
         {
-            if (mid == null)
+            var learners = (IQueryable<Learner>)db.Learners.Include(m => m.Major);
+
+            if (mid != null)
             {
-                var learners = db.Learners
-                    .Include(m => m.Major)
-                    .ToList();
-                return View(learners);
+                learners = learners.Where(l => l.MajorID == mid);
             }
-            else
-            {
-                var learners = db.Learners
-                    .Where(l => l.MajorID == mid)
-                    .Include(m => m.Major)
-                    .ToList();
-                return View(learners);
-            }
+
+            // Tính số trang
+            int pageNum = (int)Math.Ceiling(learners.Count() / (float)pageSize);
+            ViewBag.pageNum = pageNum;
+
+            // Lấy dữ liệu trang đầu
+            var result = learners.Take(pageSize).ToList();
+            return View(result);
         }
 
+        // Action LearnerFilter cho phân trang nâng cao + tìm kiếm
+        public IActionResult LearnerFilter(int? mid, string? keyword, int? pageIndex)
+        {
+            var learners = (IQueryable<Learner>)db.Learners;
+
+            int page = pageIndex == null || pageIndex <= 0 ? 1 : (int)pageIndex;
+
+            // Lọc theo Major
+            if (mid != null)
+            {
+                learners = learners.Where(l => l.MajorID == mid);
+                ViewBag.mid = mid;
+            }
+
+            // Tìm kiếm theo keyword
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                learners = learners.Where(l => l.FirstMidName.ToLower().Contains(keyword.ToLower()));
+                ViewBag.keyword = keyword;
+            }
+
+            // Tính số trang
+            int pageNum = (int)Math.Ceiling(learners.Count() / (float)pageSize);
+            ViewBag.pageNum = pageNum;
+
+            // Lấy dữ liệu trang hiện tại
+            var result = learners
+                .Skip(pageSize * (page - 1))
+                .Take(pageSize)
+                .Include(m => m.Major);
+
+            return PartialView("LearnerTable", result);
+        }
+
+        // Các action khác giữ nguyên...
         public IActionResult LearnerByMajorID(int mid)
         {
             var learners = db.Learners
@@ -45,24 +81,10 @@ namespace DayLabTh2.Controllers
 
         public IActionResult Create()
         {
-            //dùng 1 trong 2 cách để tạo SelectList gửi về ViewBag để
-            //hiển thị danh sách chuyên ngành (Majors)
-
-            //cách 1
-            //var majors = new List<SelectListItem>();
-            //foreach (var item in db.Majors)
-            //{
-            //    majors.Add(new SelectListItem { Text = item.MajorName, 
-            //                                  Value = item.MajorID.ToString() });
-            //}
-            //ViewBag.MajorID = majors;
-
-            //cách 2
             ViewBag.MajorID = new SelectList(db.Majors, "MajorID", "MajorName");
             return View();
         }
 
-        // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("FirstMidName,LastName,MajorID,EnrollmentDate")] Learner learner)
@@ -73,12 +95,10 @@ namespace DayLabTh2.Controllers
                 db.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
-            //lại dùng 1 trong 2 cách tạo SelectList gửi về ViewBag để hiển thị danh sách Majors
             ViewBag.MajorID = new SelectList(db.Majors, "MajorID", "MajorName");
             return View(learner);
         }
 
-        // GET: Edit
         public IActionResult Edit(int? id)
         {
             if (id == null || db.Learners == null)
@@ -94,7 +114,6 @@ namespace DayLabTh2.Controllers
             return View(learner);
         }
 
-        // POST: Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id,
@@ -132,7 +151,7 @@ namespace DayLabTh2.Controllers
         {
             return (db.Learners?.Any(e => e.LearnerID == id)).GetValueOrDefault();
         }
-        // GET: Delete
+
         public IActionResult Delete(int? id)
         {
             if (id == null || db.Learners == null)
@@ -157,7 +176,6 @@ namespace DayLabTh2.Controllers
             return View(learner);
         }
 
-        // POST: Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)

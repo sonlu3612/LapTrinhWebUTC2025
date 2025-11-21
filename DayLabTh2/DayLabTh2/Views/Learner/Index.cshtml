@@ -1,12 +1,26 @@
 ﻿@{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/MyLayout.cshtml";
+    Layout = "~/Views/Shared/MyLayoutHelper.cshtml";
 }
 
 @model IEnumerable<Learner>
-<div class="ms-2 me-2">
+<div class="ms-3 me-2">
     <h1>Learner List</h1>
+
+    <!-- Component Major -->
     @await Component.InvokeAsync("Major")
+
+    <!-- Form tìm kiếm -->
+    <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+        <div class="input-group">
+            <input id="keyword" class="form-control" name="Keyword"
+                   type="text" placeholder="Search learner" />
+            <button id="btnSearch" class="btn btn-primary" type="button">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </form>
+
     <div id="content">
         <table class="table table-striped">
             <thead>
@@ -36,23 +50,99 @@
                 }
             </tbody>
         </table>
-    </div> 
+
+        <!-- Thanh phân trang -->
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.pageNum; i++)
+            {
+                <li class="page-item"
+                    page="@i"
+                    mid="@(ViewBag.mid != null ? ViewBag.mid : "")"
+                    keyword="@(ViewBag.keyword != null ? ViewBag.keyword : "")">
+                    <a class="page-link">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
+
     <a asp-action="Create" class="btn btn-primary">Create New Student</a>
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function() {
-            $("li").click(function (e) {
-                var id = $(this).attr("id");
-                //alert(id);
+            // Xử lý click vào phân trang
+            $(document).on('click', 'li.page-item', function (e) {
+                e.preventDefault();
+                var page = $(this).attr("page");
+                var mid = $(this).attr("mid");
+                var keyword = $(this).attr("keyword");
+
+                var data = {
+                    mid: mid || null,
+                    keyword: keyword || null,
+                    pageIndex: page
+                };
+
                 $.ajax({
-                    url: "LearnerByMajorID",
-                    data: { mid: id },
+                    url: "LearnerFilter",
+                    data: data,
                     success: function (response) {
                         $('#content').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
                     }
                 });
+            });
+
+            // Xử lý click vào nút tìm kiếm
+            $('#btnSearch').click(function() {
+                performSearch();
+            });
+
+            // Xử lý nhấn Enter trong ô tìm kiếm
+            $('#keyword').keypress(function(e) {
+                if (e.which === 13) {
+                    e.preventDefault();
+                    performSearch();
+                }
+            });
+
+            function performSearch() {
+                var keyword = $('#keyword').val();
+                var mid = "@(ViewBag.mid != null ? ViewBag.mid : "")";
+
+                var data = {
+                    mid: mid || null,
+                    keyword: keyword || null,
+                    pageIndex: 1
+                };
+
+                $.ajax({
+                    url: "LearnerFilter",
+                    data: data,
+                    success: function (response) {
+                        $('#content').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error:", error);
+                    }
+                });
+            }
+
+            // Giữ lại script cũ cho lọc theo Major (nếu cần)
+            $("li").click(function (e) {
+                var id = $(this).attr("id");
+                if (id) { // Chỉ xử lý nếu có id (tránh xung đột với phân trang)
+                    $.ajax({
+                        url: "LearnerByMajorID",
+                        data: { mid: id },
+                        success: function (response) {
+                            $('#content').html(response);
+                        }
+                    });
+                }
             });
         });
     </script>
